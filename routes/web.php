@@ -16,7 +16,7 @@ use App\Http\Controllers\CompanyController;
 |
 */
 
-Route::get('/', [SiteController::class, 'loginForm']);
+Route::get('/', [SiteController::class, 'loginForm'])->name('login');
 Route::post('/', [SiteController::class, 'login']);
 
 Route::get('/signup', [SiteController::class, 'signUpForm'])->name('signup');
