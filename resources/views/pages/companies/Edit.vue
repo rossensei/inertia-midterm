@@ -13,7 +13,7 @@ let form = useForm({
 })
 
 const submit = () => {
-    form.post('/companies')
+    form.put('/companies/' + props.company.id)
     
 }
 </script>

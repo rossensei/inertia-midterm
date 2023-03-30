@@ -23,7 +23,7 @@ const submit = () => {
 </script>
 
 <template layout="default">
-    <div class="w-full bg-gray-50 rounded-lg shadow dark:border mx-auto md:mt-0 sm:max-w-md xl:p-0">
+    <div class="w-full bg-gray-50 rounded-lg shadow dark:border mx-auto -mt-52 sm:max-w-md xl:p-0">
         <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 class="text-xl text-center font-bold leading-tight tracking-tight text-gray-900">
                 Edit Member

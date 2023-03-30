@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('type');
             $table->string('address');
-            $table->decimal('net_worth');
+            $table->decimal('net_worth', 14,2);
             $table->timestamps();
         });
     }
