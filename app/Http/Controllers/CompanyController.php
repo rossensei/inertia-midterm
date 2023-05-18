@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use Illuminate\Http\Request;
+// use Illuminate\Support\Facades\Session;
 
 class CompanyController extends Controller
 {
@@ -38,9 +39,9 @@ class CompanyController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'type' => 'required',
-            'address' => 'required',
+            'name' => 'required|string',
+            'type' => 'required|string',
+            'address' => 'required|string',
             'net_worth' => 'required|numeric',
         ]);
 
@@ -51,7 +52,7 @@ class CompanyController extends Controller
             'net_worth' => $request->net_worth,
         ]);
 
-        return redirect('/companies')->with('message', 'Company added successfully!');
+        return redirect('/companies')->with('success', 'Company added successfully!');
     }
 
     /**
@@ -88,15 +89,15 @@ class CompanyController extends Controller
     public function update(Request $request, Company $company)
     {
         $fields = $request->validate([
-            'name' => 'required',
-            'type' => 'required',
-            'address' => 'required',
-            'net_worth' => 'required',
+            'name' => 'required|string',
+            'type' => 'required|string',
+            'address' => 'required|string',
+            'net_worth' => 'required|numeric',
         ]);
 
         $company->update($fields);
 
-        return redirect('/companies')->with('message', 'Company updated successfully!');
+        return redirect('/companies')->with('success', 'Company updated successfully!');
     }
 
     /**
@@ -107,6 +108,16 @@ class CompanyController extends Controller
      */
     public function destroy(Company $company)
     {
-        //
+        if($company->members->count() > 0) {
+            if($company->members->count() > 1) {
+                return redirect('/companies')->with('error', "You can't delete this company because it has ".$company->members->count()." members.");
+            } else {
+                return redirect('/companies')->with('error', "You can't delete this company because it has ".$company->members->count()." member.");
+            }
+        }else{
+            $company->delete();
+
+            return redirect('/companies')->with('success', 'Company has been deleted successfully!');
+        }
     }
 }

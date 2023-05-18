@@ -1,15 +1,67 @@
 <script setup>
-import {Link} from '@inertiajs/inertia-vue3'
+import {Link, useForm} from '@inertiajs/inertia-vue3'
+import {ref, onMounted, watch, onBeforeMount, onBeforeUnmount, onBeforeUpdate } from 'vue'
+import DeleteConfirmation from '../../components/confirm-dialog.vue'
+import InformationDialog from '../../components/information-dialog.vue'
+import WarningDialog from '../../components/warning-dialog.vue'
 
-defineProps({
-    'companies': Array
+onMounted(() => {
+    if(props.flash.success && props.flash.success != 'Company deleted successfully!') {
+        console.log(true)
+        setTimeout(() => {
+            showSuccessDialog.value = true
+        }, 100)
+    }
 })
 
-const closeNotif = () => {
-    const toast = document.getElementById('toast-bottom-left');
-    toast.style.opacity = '0'
-    toast.style.transition = '.5s all ease'
+onBeforeUpdate(() => {
+    if(!props.flash.error) {
+        showSuccessDialog.value = true
+    }
+})
+
+const props = defineProps({
+    'companies': Array,
+    'flash': Object
+})
+
+const showSuccessDialog = ref(false)
+const showErrorDialog = ref(false)
+const showDialog = ref(false)
+let deleteForm = useForm()
+let selectedCompany = null
+
+const closeErrorDialog = () => {
+    props.flash.error = null
 }
+
+const closeInfoDialog = () => {
+    props.flash.success = null
+    showSuccessDialog.value = false
+}
+
+// toggle modal
+const toggleDialog = () => {
+    showDialog.value = !showDialog.value
+}
+
+const getSelectedCompany = (id) => {
+    selectedCompany = id
+    console.log(selectedCompany)
+    toggleDialog();
+}
+ 
+const deleteOffice = () => {
+    deleteForm.delete('/companies/' + selectedCompany)
+    toggleDialog()
+}
+
+watch(props.flash.success, (newValue, oldValue) => {
+    if(newValue == 'Company deleted successfully!') {
+        console.log(newValue)
+    }
+})
+
 </script>
 
 <template layout="default">
@@ -18,6 +70,30 @@ const closeNotif = () => {
             <h1 class="text-3xl font-semibold text-white">Companies</h1>
             <Link href="/companies/create" class="text-white rounded-lg border-2 border-solid hover:border-blue-500 hover:bg-gray-50 hover:text-gray-700 px-3 py-1">+ Add Company</Link>
         </div>
+
+        <Transition name="slide-down">
+            <div v-if="showDialog" class="absolute top-0 left-0 min-h-full min-w-full -mt-1">
+                <DeleteConfirmation title="Delete Confirmation"
+                message="Are you sure you want to delete this item?" 
+                @cancel="toggleDialog()"
+                @confirm="deleteOffice()"
+                ></DeleteConfirmation>
+            </div>
+        </Transition>
+
+        <Transition name="slide-down">
+            <div v-if="props.flash.error" class="absolute top-0 left-0 min-h-full min-w-full -mt-1">
+                <WarningDialog :message="props.flash.error" @dismiss="closeErrorDialog()"></WarningDialog>
+            </div>
+        </Transition>
+
+        <!-- renders only if showSuccessDialog is true -->
+        <Transition name="slide-down">
+            <div v-if="showSuccessDialog" class="absolute top-0 left-0 min-h-full min-w-full -mt-1">
+                <InformationDialog :message="props.flash.success" @dismiss="closeInfoDialog()"></InformationDialog>
+            </div>
+        </Transition>
+
         <table class="w-full text-sm text-left text-gray 500">
             <thead class="text-sm text-gray-700 uppercase bg-gray-50">
                 <tr>
@@ -58,20 +134,27 @@ const closeNotif = () => {
                     <td class="px-6 py-4">
                         {{ company.net_worth }}
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 space-x-2">
                         <Link :href="'/companies/edit/' + company.id" class=""><i class="fa-solid fa-pen"></i></Link>
+                        <button class="bg-red-600 text-white px-1.5 py-1 rounded-lg" @click="getSelectedCompany(company.id)"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 </tr>
             </tbody>
         </table>
-
-        <div v-if="$page.props.flash.message" id="toast-bottom-left" class="transition-ease fixed flex justify-between items-center w-full max-w-xs p-4 space-x-4 text-gray-500 bg-green-50 rounded-md shadow bottom-14 left-14 border-l-8 border border-green-400" role="alert">
-            <div class="flex items-center">
-                <a href="#" class="text-green-500"><i class="fa-solid fa-circle-check"></i></a>
-                <div class="pl-4 border-l-2 border-green-600 text-green-700 text-sm font-normal ml-4">{{ $page.props.flash.message }}</div>
-            </div>
-
-            <button id="close-button" @click="closeNotif()"><i class="fa-solid fa-xmark"></i></button>
-        </div>
     </div>
 </template>
+
+<style>
+.slide-down-enter-active, 
+.slide-down-leave-active {
+    @apply transition-transform;
+    @apply duration-100;
+    @apply ease-in-out;
+}
+
+.slide-down-enter-from, 
+.slide-down-leave-to {
+    @apply -translate-y-10;
+}
+
+</style>

@@ -16,11 +16,14 @@ use App\Http\Controllers\CompanyController;
 |
 */
 
-Route::get('/', [SiteController::class, 'loginForm'])->name('login');
-Route::post('/', [SiteController::class, 'login']);
+Route::group(['middleware' => 'guest'], function() {
+    Route::get('/', [SiteController::class, 'loginForm'])->name('login');
+    Route::post('/', [SiteController::class, 'login']);
 
-Route::get('/signup', [SiteController::class, 'signUpForm'])->name('signup');
-Route::post('/signup', [SiteController::class, 'store']);
+    Route::get('/signup', [SiteController::class, 'signUpForm'])->name('signup');
+    Route::post('/signup', [SiteController::class, 'store']);
+
+});
 
 Route::group(['middleware' => 'auth'], function(){
     Route::get('/logout', [SiteController::class, 'logout']);
@@ -35,4 +38,5 @@ Route::group(['middleware' => 'auth'], function(){
     Route::post('/companies', [CompanyController::class, 'store']);
     Route::get('/companies/edit/{company}', [CompanyController::class, 'edit']);
     Route::put('/companies/{company}', [CompanyController::class, 'update']);
+    Route::delete('/companies/{company}', [CompanyController::class, 'destroy']);
 });

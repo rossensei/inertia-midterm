@@ -1,8 +1,10 @@
 <script setup>
 import {Link} from '@inertiajs/inertia-vue3'
+import { onMounted } from 'vue'
+import Pagination from '../../components/Pagination.vue'
 
 defineProps({
-    'members': Array
+    'members': Object
 })
 
 const closeNotif = () => {
@@ -46,8 +48,8 @@ const closeNotif = () => {
                     </th>
                 </tr>
             </thead>
-            <tbody v-for="member of members" :key="member.id">
-                <tr class="bg-white border-b">
+            <tbody v-for="member of members.data" :key="member.id">
+                <tr class="bg-white border-b hover:bg-gray-100">
                     <td class="px-6 py-4">
                         {{ member.id }}
                     </td>
@@ -70,13 +72,15 @@ const closeNotif = () => {
             </tbody>
         </table>
 
-        <div v-if="$page.props.flash.message" id="toast-bottom-left" class="transition-ease fixed flex justify-between items-center w-full max-w-xs p-4 space-x-4 text-gray-500 bg-green-50 rounded-md shadow bottom-14 left-14 border-l-8 border border-green-400" role="alert">
-            <div class="flex items-center">
-                <a href="#" class="text-green-500"><i class="fa-solid fa-circle-check"></i></a>
-                <div class="pl-4 border-l-2 border-green-600 text-green-700 text-sm font-normal ml-4">{{ $page.props.flash.message }}</div>
-            </div>
+        <div class="flex justify-center items-center mt-5">
+            <!-- <Link v-for="member in members.links" 
+            :key="member.id" 
+            :href="member.url"
+            class="rounded-lg px-3 py-1.5 border border-gray-300 hover:bg-gray-300"
+            :class="{'border-blue-400' : link.active }"
+            >{{ member.label }}</Link> -->
 
-            <button id="close-button" @click="closeNotif()"><i class="fa-solid fa-xmark"></i></button>
+            <Pagination :links="members.links" />
         </div>
     </div>
     

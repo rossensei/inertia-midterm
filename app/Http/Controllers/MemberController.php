@@ -15,10 +15,18 @@ class MemberController extends Controller
      */
     public function index()
     {
+
+        $members = Member::orderBy('last_name')->with('company')->paginate(10);
+        // $members = Member::orderBy('last_name')->with('company')->get();
+
+        // dd($members);
+        // return inertia('members/Index', [
+        //     'members' => Member::orderBy('last_name')
+        //                 ->with('company')
+        //                 ->paginate(10)
+        // ]);
         return inertia('members/Index', [
-            'members' => Member::orderBy('last_name')
-                        ->with('company')
-                        ->get()
+            'members' => $members
         ]);
     }
 
